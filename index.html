@@ -1,6 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio de Prompts - IA na Escola</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg: #F3F4F6;
+            --card: #FFFFFF;
+            --text: #1F2937;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: var(--card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1, h2 { color: var(--primary); }
+        .hidden { display: none; }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea { height: 150px; resize: vertical; }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #4338CA; }
+        button:disabled { background-color: #9CA3AF; cursor: not-allowed; }
+        .progress {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .scenario-text {
+            background-color: #EEF2FF;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    
+    <!-- TELA 1: NOME DO GRUPO E SELEÇÃO DE CENÁRIO -->
+    <div id="screen-start">
+        <h1>Desafio de Prompts 🤖</h1>
+        <p>Bem-vindos! Neste exercício, vocês vão criar instruções (prompts) para Inteligências Artificiais baseadas em situações reais da escola.</p>
+        
+        <label for="group-name"><strong>Qual o nome do grupo? (ou seus nomes)</strong></label>
+        <input type="text" id="group-name" placeholder="Ex: Grupo 1, ou João e Maria..." required>
+        
+        <label for="start-scenario"><strong>De qual cenário vocês querem começar?</strong></label>
+        <select id="start-scenario">
+            <option value="0">Cenário 1: Bloqueio Criativo na Redação</option>
+            <option value="1">Cenário 2: O Desespero com Frações</option>
+            <option value="2">Cenário 3: Pesquisa com Palavras Difíceis</option>
+            <option value="3">Cenário 4: Trabalho Manual sem Ideias</option>
+            <option value="4">Cenário 5: Preparação para a Prova de Geografia</option>
+            <option value="5">Cenário 6: O Jeito Certo de Falar em Inglês</option>
+            <option value="6">Cenário 7: A Regra que Não Entra na Cabeça</option>
+            <option value="7">Cenário 8: Entendendo o Livro da Escola</option>
+            <option value="8">Cenário 9: Organização da Agenda</option>
+            <option value="9">Cenário 10: Apresentação em Grupo</option>
+        </select>
+
+        <button onclick="startApp()">Começar Desafio</button>
+    </div>
+
+    <!-- TELA 2: CENÁRIOS -->
+    <div id="screen-scenario" class="hidden">
+        <div class="progress" id="progress-text">Cenário 1 de 10</div>
+        <h2 id="scenario-title">Título</h2>
+        <div class="scenario-text" id="scenario-desc">Descrição do cenário.</div>
+        
+        <label for="prompt-input"><strong>Escreva o seu Prompt aqui:</strong></label>
+        <textarea id="prompt-input" placeholder="Aja como um professor de..."></textarea>
+        
+        <button id="btn-save" onclick="saveAndContinue()">Salvar e Continuar</button>
+    </div>
+
+    <!-- TELA 3: FINAL -->
+    <div id="screen-end" class="hidden">
+        <h1>🎉 Parabéns!</h1>
+        <p>Vocês concluíram todos os cenários. Todas as respostas foram enviadas e salvas com sucesso!</p>
+        <p>Avisem o professor que terminaram.</p>
+    </div>
+
+</div>
+
 <script>
-    // ⚠️ COLE SUA NOVA URL AQUI:
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnTO3k0uQGyEHiA1zBPyFtPWDcyldQDQz5G4OI0vqXNOaRkfL1hBr6_tTNuJi37Z9d/exec";
+    // ⚠️ COLE SUA NOVA URL AQUI EMBAIXO, DENTRO DAS ASPAS:
+    const GOOGLE_SCRIPT_URL = "SUA_NOVA_URL_AQUI";
 
     const scenarios = [
         { title: "1. Bloqueio Criativo na Redação", desc: "Você precisa escrever um conto de aventura de duas páginas para a aula de Português, mas está olhando para a folha em branco há meia hora. Você não quer que a IA escreva a história por você, mas precisa de ideias de cenários, um nome legal para a protagonista e um mistério inicial." },
@@ -86,3 +210,6 @@
         });
     }
 </script>
+
+</body>
+</html>
