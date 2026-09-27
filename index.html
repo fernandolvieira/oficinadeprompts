@@ -32,7 +32,6 @@
         }
         h1, h2 { color: var(--primary); }
         .hidden { display: none; }
-        
         input[type="text"], textarea, select {
             width: 100%;
             padding: 12px;
@@ -76,7 +75,7 @@
 
 <div class="container" id="app">
     
-    <!-- TELA 1: NOME DO GRUPO E SELEÇÃO DE CENÁRIO -->
+    <!-- TELA 1 -->
     <div id="screen-start">
         <h1>Desafio de Prompts 🤖</h1>
         <p>Bem-vindos! Neste exercício, vocês vão criar instruções (prompts) para Inteligências Artificiais baseadas em situações reais da escola.</p>
@@ -101,7 +100,7 @@
         <button onclick="startApp()">Começar Desafio</button>
     </div>
 
-    <!-- TELA 2: CENÁRIOS -->
+    <!-- TELA 2 -->
     <div id="screen-scenario" class="hidden">
         <div class="progress" id="progress-text">Cenário 1 de 10</div>
         <h2 id="scenario-title">Título</h2>
@@ -113,7 +112,7 @@
         <button id="btn-save" onclick="saveAndContinue()">Salvar e Continuar</button>
     </div>
 
-    <!-- TELA 3: FINAL -->
+    <!-- TELA 3 -->
     <div id="screen-end" class="hidden">
         <h1>🎉 Parabéns!</h1>
         <p>Vocês concluíram todos os cenários. Todas as respostas foram enviadas e salvas com sucesso!</p>
@@ -123,8 +122,8 @@
 </div>
 
 <script>
-    // ⚠️ COLE SUA NOVA URL AQUI EMBAIXO, DENTRO DAS ASPAS:
-    const GOOGLE_SCRIPT_URL = "SUA_NOVA_URL_AQUI";
+    // ⚠️ COLE A SUA NOVA URL GERADA NO PASSO 1 AQUI:
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqUOgTfypryLPq0gNowEKGfesAwwFzENWnhlXNQFQLVVsm5wZXBlBfw2D3EfSLb8LV/exec";
 
     const scenarios = [
         { title: "1. Bloqueio Criativo na Redação", desc: "Você precisa escrever um conto de aventura de duas páginas para a aula de Português, mas está olhando para a folha em branco há meia hora. Você não quer que a IA escreva a história por você, mas precisa de ideias de cenários, um nome legal para a protagonista e um mistério inicial." },
@@ -178,33 +177,36 @@
         btn.innerText = "Salvando... ⏳";
         btn.disabled = true;
 
-        // Prepara os dados para envio via formulário (evita bloqueios do Google)
-        const formData = new FormData();
-        formData.append('groupName', groupName);
-        formData.append('scenarioTitle', scenarios[currentScenario].title);
-        formData.append('promptText', promptText);
+        // Pacote de dados formato JSON
+        const payload = {
+            groupName: groupName,
+            scenarioTitle: scenarios[currentScenario].title,
+            promptText: promptText
+        };
 
+        // Requisição segura e imune a bloqueios CORS básicos
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
-            body: formData
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
         })
         .then(() => {
-            // Avança o cenário
+            // Avança para a próxima tela instantaneamente
             currentScenario++;
             if (currentScenario < scenarios.length) {
                 loadScenario();
                 btn.innerText = "Salvar e Continuar";
                 btn.disabled = false;
             } else {
-                // Fim dos cenários
                 document.getElementById("screen-scenario").classList.add("hidden");
                 document.getElementById("screen-end").classList.remove("hidden");
             }
         })
         .catch(error => {
-            console.error(error);
-            alert("Houve um erro ao tentar salvar. Verifiquem a internet e tentem de novo.");
+            console.error("Erro no envio:", error);
+            alert("Ocorreu uma falha de conexão, verifique sua internet e tente clicar de novo.");
             btn.innerText = "Salvar e Continuar";
             btn.disabled = false;
         });
