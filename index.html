@@ -32,7 +32,9 @@
         }
         h1, h2 { color: var(--primary); }
         .hidden { display: none; }
-        input[type="text"], textarea {
+        
+        /* Adicionado "select" aqui para ficar bonito igual aos outros campos */
+        input[type="text"], textarea, select {
             width: 100%;
             padding: 12px;
             margin: 10px 0 20px 0;
@@ -75,12 +77,28 @@
 
 <div class="container" id="app">
     
-    <!-- TELA 1: NOME DO GRUPO -->
+    <!-- TELA 1: NOME DO GRUPO E SELEÇÃO DE CENÁRIO -->
     <div id="screen-start">
         <h1>Desafio de Prompts 🤖</h1>
         <p>Bem-vindos! Neste exercício, vocês vão criar instruções (prompts) para Inteligências Artificiais baseadas em situações reais da escola.</p>
+        
         <label for="group-name"><strong>Qual o nome do grupo? (ou seus nomes)</strong></label>
         <input type="text" id="group-name" placeholder="Ex: Grupo 1, ou João e Maria..." required>
+        
+        <label for="start-scenario"><strong>De qual cenário vocês querem começar?</strong></label>
+        <select id="start-scenario">
+            <option value="0">Cenário 1: Bloqueio Criativo na Redação</option>
+            <option value="1">Cenário 2: O Desespero com Frações</option>
+            <option value="2">Cenário 3: Pesquisa com Palavras Difíceis</option>
+            <option value="3">Cenário 4: Trabalho Manual sem Ideias</option>
+            <option value="4">Cenário 5: Preparação para a Prova de Geografia</option>
+            <option value="5">Cenário 6: O Jeito Certo de Falar em Inglês</option>
+            <option value="6">Cenário 7: A Regra que Não Entra na Cabeça</option>
+            <option value="7">Cenário 8: Entendendo o Livro da Escola</option>
+            <option value="8">Cenário 9: Organização da Agenda</option>
+            <option value="9">Cenário 10: Apresentação em Grupo</option>
+        </select>
+
         <button onclick="startApp()">Começar Desafio</button>
     </div>
 
@@ -106,8 +124,8 @@
 </div>
 
 <script>
-    // A SUA URL FOI INSERIDA AQUI:
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnTO3k0uQGyEHiA1zBPyFtPWDcyldQDQz5G4OI0vqXNOaRkfL1hBr6_tTNuJi37Z9d/exec";
+    // URL MANTIDA COM A SUA DO SCRIPT GOOGLE
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxEdQPTLn7dT3_lAh57aLOqJ-FBQ7obplaxQJEhWrejhuqqQHkFtsIyO4AC5ERH21WZ/exec";
 
     const scenarios = [
         { title: "1. Bloqueio Criativo na Redação", desc: "Você precisa escrever um conto de aventura de duas páginas para a aula de Português, mas está olhando para a folha em branco há meia hora. Você não quer que a IA escreva a história por você, mas precisa de ideias de cenários, um nome legal para a protagonista e um mistério inicial." },
@@ -127,11 +145,17 @@
 
     function startApp() {
         const nameInput = document.getElementById("group-name").value.trim();
+        const selectedScenario = document.getElementById("start-scenario").value;
+        
         if (!nameInput) {
             alert("Por favor, digitem o nome do grupo!");
             return;
         }
+        
         groupName = nameInput;
+        // Pega o valor do select e transforma em número (0 a 9)
+        currentScenario = parseInt(selectedScenario); 
+        
         document.getElementById("screen-start").classList.add("hidden");
         document.getElementById("screen-scenario").classList.remove("hidden");
         loadScenario();
@@ -162,14 +186,14 @@
         data.append('scenarioTitle', scenarios[currentScenario].title);
         data.append('promptText', promptText);
 
-        // Envia para o Google Sheets
+        // Envia para o Google Sheets contornando o bloqueio CORS
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
+            mode: 'no-cors',
             body: data
         })
-        .then(response => response.text())
-        .then(result => {
-            // Sucesso ao salvar
+        .then(() => {
+            // Avança o cenário
             currentScenario++;
             if (currentScenario < scenarios.length) {
                 loadScenario();
