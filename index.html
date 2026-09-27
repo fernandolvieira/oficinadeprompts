@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio de Prompts - IA na Escola</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg: #F3F4F6;
+            --card: #FFFFFF;
+            --text: #1F2937;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: var(--card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1, h2 { color: var(--primary); }
+        .hidden { display: none; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea { height: 150px; resize: vertical; }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #4338CA; }
+        button:disabled { background-color: #9CA3AF; cursor: not-allowed; }
+        .progress {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .scenario-text {
+            background-color: #EEF2FF;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    
+    <!-- TELA 1: NOME DO GRUPO -->
+    <div id="screen-start">
+        <h1>Desafio de Prompts 🤖</h1>
+        <p>Bem-vindos! Neste exercício, vocês vão criar instruções (prompts) para Inteligências Artificiais baseadas em situações reais da escola.</p>
+        <label for="group-name"><strong>Qual o nome do grupo? (ou seus nomes)</strong></label>
+        <input type="text" id="group-name" placeholder="Ex: Grupo 1, ou João e Maria..." required>
+        <button onclick="startApp()">Começar Desafio</button>
+    </div>
+
+    <!-- TELA 2: CENÁRIOS -->
+    <div id="screen-scenario" class="hidden">
+        <div class="progress" id="progress-text">Cenário 1 de 10</div>
+        <h2 id="scenario-title">Título</h2>
+        <div class="scenario-text" id="scenario-desc">Descrição do cenário.</div>
+        
+        <label for="prompt-input"><strong>Escreva o seu Prompt aqui:</strong></label>
+        <textarea id="prompt-input" placeholder="Aja como um professor de..."></textarea>
+        
+        <button id="btn-save" onclick="saveAndContinue()">Salvar e Continuar</button>
+    </div>
+
+    <!-- TELA 3: FINAL -->
+    <div id="screen-end" class="hidden">
+        <h1>🎉 Parabéns!</h1>
+        <p>Vocês concluíram todos os cenários. Todas as respostas foram enviadas e salvas com sucesso!</p>
+        <p>Avisem o professor que terminaram.</p>
+    </div>
+
+</div>
+
+<script>
+    // URL DO SEU GOOGLE APPS SCRIPT AQUI (Coloque a URL gerada no Passo 1)
+    const GOOGLE_SCRIPT_URL = "COLE_SUA_URL_DO_GOOGLE_AQUI";
+
+    const scenarios = [
+        { title: "1. Bloqueio Criativo na Redação", desc: "Você precisa escrever um conto de aventura de duas páginas para a aula de Português, mas está olhando para a folha em branco há meia hora. Você não quer que a IA escreva a história por você, mas precisa de ideias de cenários, um nome legal para a protagonista e um mistério inicial." },
+        { title: "2. O Desespero com Frações", desc: "Você tem exercícios sobre frações. O professor explicou o MMC, mas você esqueceu. Peça para a IA explicar o passo a passo de um jeito simples, como um amigo, usando exemplo de fatias de pizza." },
+        { title: "3. Pesquisa com Palavras Difíceis", desc: "Trabalho sobre Tarsila do Amaral ou Grécia Antiga. O Google só mostra textos difíceis. Peça para a IA reescrever as informações mais importantes de um jeito fácil de entender para alguém de 11 anos." },
+        { title: "4. Trabalho Manual sem Ideias", desc: "A professora pediu uma maquete da célula animal (ou Sistema Solar). Vocês estão sem dinheiro e precisam usar recicláveis de casa. Peçam sugestões criativas e baratas." },
+        { title: "5. Preparação para a Prova de Geografia", desc: "Prova sobre biomas brasileiros. Você já estudou, mas quer testar conhecimentos. Peça para a IA criar um 'quiz' de múltipla escolha para você treinar, corrigindo uma por uma." },
+        { title: "6. O Jeito Certo de Falar em Inglês", desc: "Apresentação em inglês gravada. Você tem o texto, mas quer que a IA corrija a gramática e te ensine (com dicas escritas) como pronunciar as palavras mais difíceis." },
+        { title: "7. A Regra que Não Entra na Cabeça", desc: "Dúvida cruel: é 'mas' ou 'mais'? 'Por que' separado ou junto? Peça para a IA te ensinar um truque, rima ou regrinha divertida para nunca mais esquecer na prova." },
+        { title: "8. Entendendo o Livro da Escola", desc: "Você leu o Capítulo 3 de um livro paradidático, mas achou confuso e precisa entregar um resumo. Peça para discutir o capítulo com a IA, mas avise para ELA NÃO DAR SPOILERS do resto." },
+        { title: "9. Organização da Agenda", desc: "Sexta à tarde: 10 exercícios de mat, ler 20 páginas, cartaz de história, treino de esporte sábado de manhã e domingo livre para jogar. Peça ajuda para montar um cronograma realista." },
+        { title: "10. Apresentação em Grupo", desc: "Apresentação de 10 minutos. Dois colegas são muito tímidos. Peça sugestões de como dividir o trabalho de forma justa sem forçar quem tem vergonha de falar muito lá na frente." }
+    ];
+
+    let currentScenario = 0;
+    let groupName = "";
+
+    function startApp() {
+        const nameInput = document.getElementById("group-name").value.trim();
+        if (!nameInput) {
+            alert("Por favor, digitem o nome do grupo!");
+            return;
+        }
+        groupName = nameInput;
+        document.getElementById("screen-start").classList.add("hidden");
+        document.getElementById("screen-scenario").classList.remove("hidden");
+        loadScenario();
+    }
+
+    function loadScenario() {
+        document.getElementById("progress-text").innerText = `Cenário ${currentScenario + 1} de ${scenarios.length}`;
+        document.getElementById("scenario-title").innerText = scenarios[currentScenario].title;
+        document.getElementById("scenario-desc").innerText = scenarios[currentScenario].desc;
+        document.getElementById("prompt-input").value = ""; 
+    }
+
+    function saveAndContinue() {
+        const promptText = document.getElementById("prompt-input").value.trim();
+        
+        if (!promptText) {
+            alert("Vocês precisam escrever o prompt antes de continuar!");
+            return;
+        }
+
+        const btn = document.getElementById("btn-save");
+        btn.innerText = "Salvando... ⏳";
+        btn.disabled = true;
+
+        // Prepara os dados para envio
+        const data = new URLSearchParams();
+        data.append('groupName', groupName);
+        data.append('scenarioTitle', scenarios[currentScenario].title);
+        data.append('promptText', promptText);
+
+        // Envia para o Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: data
+        })
+        .then(response => response.text())
+        .then(result => {
+            // Sucesso ao salvar
+            currentScenario++;
+            if (currentScenario < scenarios.length) {
+                loadScenario();
+                btn.innerText = "Salvar e Continuar";
+                btn.disabled = false;
+            } else {
+                // Fim dos cenários
+                document.getElementById("screen-scenario").classList.add("hidden");
+                document.getElementById("screen-end").classList.remove("hidden");
+            }
+        })
+        .catch(error => {
+            alert("Houve um erro ao salvar. Verifiquem a internet e tentem de novo.");
+            btn.innerText = "Salvar e Continuar";
+            btn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
